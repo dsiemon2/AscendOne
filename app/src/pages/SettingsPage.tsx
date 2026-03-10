@@ -4,7 +4,7 @@ import { useThemeStore, ThemePeriod, ThemeColors, themes } from "../store/themeS
 import { useAppStore } from "../store/appStore";
 import { getDb } from "../db/database";
 import { getVersion } from "@tauri-apps/api/app";
-import { appLogDir, join } from "@tauri-apps/api/path";
+import { appLogDir } from "@tauri-apps/api/path";
 import { openPath } from "@tauri-apps/plugin-opener";
 import { logger } from "../utils/logger";
 import {
@@ -784,44 +784,6 @@ export default function SettingsPage() {
         </div>
       </Section>
 
-      {/* ── ABOUT ───────────────────────────────────────────────────────── */}
-      <Section title="About" icon={<Info size={17} />} theme={theme}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-          <div>
-            <p style={{ color: theme.textPrimary, fontWeight: 700, fontSize: "0.95rem", margin: 0 }}>
-              AscendOne
-            </p>
-            <p style={{ color: theme.textMuted, fontSize: "0.78rem", margin: "4px 0 0" }}>
-              Version {appVersion} · Beta
-            </p>
-          </div>
-          <button
-            onClick={async () => {
-              try {
-                const logDir  = await appLogDir();
-                const logPath = await join(logDir, "ascendone.log");
-                await openPath(logPath);
-              } catch (e) {
-                logger.error("SettingsPage", "Failed to open log file", { error: String(e) });
-              }
-            }}
-            style={{
-              display: "inline-flex", alignItems: "center", gap: 7,
-              padding: "9px 18px", borderRadius: 10,
-              background: theme.bgInput, border: `1px solid ${theme.bgCardBorder}`,
-              color: theme.textSecondary, fontWeight: 600, fontSize: "0.83rem",
-              cursor: "pointer", transition: "border-color 0.2s",
-            }}
-          >
-            <FileText size={14} />
-            View Log File
-          </button>
-        </div>
-        <p style={{ color: theme.textMuted, fontSize: "0.73rem", marginTop: 12, marginBottom: 0 }}>
-          Log file: %LOCALAPPDATA%\com.ascendone.app\logs\ascendone.log
-        </p>
-      </Section>
-
       {/* ── APPEARANCE ──────────────────────────────────────────────────── */}
       <Section title="Appearance" icon={<Palette size={17} />} theme={theme}>
         <p style={{ color: theme.textMuted, fontSize: "0.83rem", marginBottom: 18 }}>
@@ -889,6 +851,44 @@ export default function SettingsPage() {
             );
           })}
         </div>
+      </Section>
+
+      {/* ── ABOUT ───────────────────────────────────────────────────────── */}
+      <Section title="About" icon={<Info size={17} />} theme={theme}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+          <div>
+            <p style={{ color: theme.textPrimary, fontWeight: 700, fontSize: "0.95rem", margin: 0 }}>
+              AscendOne
+            </p>
+            <p style={{ color: theme.textMuted, fontSize: "0.78rem", margin: "4px 0 0" }}>
+              Version {appVersion} · Beta
+            </p>
+          </div>
+          <button
+            onClick={async () => {
+              try {
+                // Open the logs folder — works even if no log file exists yet
+                const logDir = await appLogDir();
+                await openPath(logDir);
+              } catch (e) {
+                logger.error("SettingsPage", "Failed to open log folder", { error: String(e) });
+              }
+            }}
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 7,
+              padding: "9px 18px", borderRadius: 10,
+              background: theme.bgInput, border: `1px solid ${theme.bgCardBorder}`,
+              color: theme.textSecondary, fontWeight: 600, fontSize: "0.83rem",
+              cursor: "pointer", transition: "border-color 0.2s",
+            }}
+          >
+            <FileText size={14} />
+            Open Log Folder
+          </button>
+        </div>
+        <p style={{ color: theme.textMuted, fontSize: "0.73rem", marginTop: 12, marginBottom: 0 }}>
+          Logs: %LOCALAPPDATA%\com.ascendone.app\logs\
+        </p>
       </Section>
 
     </div>
