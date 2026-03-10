@@ -60,20 +60,24 @@ body {
   color: #2c1a0e;
 }
 
-/* Hide native calendar/time picker icons but keep the click-to-open behaviour.
-   Stretch the invisible indicator over the whole input so any click opens the picker. */
+/* Date inputs: stretch invisible indicator over whole field so any click opens picker */
 input[type="date"],
-input[type="time"],
 input[type="datetime-local"] {
   position: relative;
 }
 input[type="date"]::-webkit-calendar-picker-indicator,
-input[type="time"]::-webkit-calendar-picker-indicator,
 input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
   width: auto;
   height: auto;
   opacity: 0;
+  cursor: pointer;
+}
+
+/* Time inputs: hybrid — type directly OR click the clock icon on the right.
+   Keep the native indicator visible and in its natural position (right side). */
+input[type="time"]::-webkit-calendar-picker-indicator {
+  opacity: 0.5;
   cursor: pointer;
 }
