@@ -1,8 +1,12 @@
-import { useState, useRef } from "react";
-import { User, Lock, Palette, Bell, ChevronRight, Check, Eye, EyeOff, AlertTriangle, Moon } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { User, Lock, Palette, Bell, ChevronRight, Check, Eye, EyeOff, AlertTriangle, Moon, Info, FileText } from "lucide-react";
 import { useThemeStore, ThemePeriod, ThemeColors, themes } from "../store/themeStore";
 import { useAppStore } from "../store/appStore";
 import { getDb } from "../db/database";
+import { getVersion } from "@tauri-apps/api/app";
+import { appLogDir, join } from "@tauri-apps/api/path";
+import { openPath } from "@tauri-apps/plugin-opener";
+import { logger } from "../utils/logger";
 import {
   type NotifSchedule,
   DEFAULT_NOTIF_PREFS,
@@ -186,6 +190,12 @@ const SLEEP_OPTIONS: { label: string; value: number }[] = [
 export default function SettingsPage() {
   const { theme, manualOverride, setManualOverride } = useThemeStore();
   const { profile, setProfile, sleepMinutes, setSleepMinutes } = useAppStore();
+
+  // ── App version (read from Tauri at runtime)
+  const [appVersion, setAppVersion] = useState<string>("…");
+  useEffect(() => {
+    getVersion().then(setAppVersion).catch(() => setAppVersion("0.1.0-beta"));
+  }, []);
 
   // ── Profile form state
   const [profileForm, setProfileForm] = useState({
@@ -772,6 +782,44 @@ export default function SettingsPage() {
             theme={theme}
           />
         </div>
+      </Section>
+
+      {/* ── ABOUT ───────────────────────────────────────────────────────── */}
+      <Section title="About" icon={<Info size={17} />} theme={theme}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+          <div>
+            <p style={{ color: theme.textPrimary, fontWeight: 700, fontSize: "0.95rem", margin: 0 }}>
+              AscendOne
+            </p>
+            <p style={{ color: theme.textMuted, fontSize: "0.78rem", margin: "4px 0 0" }}>
+              Version {appVersion} · Beta
+            </p>
+          </div>
+          <button
+            onClick={async () => {
+              try {
+                const logDir  = await appLogDir();
+                const logPath = await join(logDir, "ascendone.log");
+                await openPath(logPath);
+              } catch (e) {
+                logger.error("SettingsPage", "Failed to open log file", { error: String(e) });
+              }
+            }}
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 7,
+              padding: "9px 18px", borderRadius: 10,
+              background: theme.bgInput, border: `1px solid ${theme.bgCardBorder}`,
+              color: theme.textSecondary, fontWeight: 600, fontSize: "0.83rem",
+              cursor: "pointer", transition: "border-color 0.2s",
+            }}
+          >
+            <FileText size={14} />
+            View Log File
+          </button>
+        </div>
+        <p style={{ color: theme.textMuted, fontSize: "0.73rem", marginTop: 12, marginBottom: 0 }}>
+          Log file: %LOCALAPPDATA%\com.ascendone.app\logs\ascendone.log
+        </p>
       </Section>
 
       {/* ── APPEARANCE ──────────────────────────────────────────────────── */}
