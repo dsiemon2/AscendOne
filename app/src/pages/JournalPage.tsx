@@ -154,7 +154,6 @@ export default function JournalPage() {
   }
 
   // ── Helpers ─────────────────────────────────────────────────────────────────
-  const isToday    = date === getLocalDateString();
   const wordCount  = content.trim() ? content.trim().split(/\s+/).length : 0;
   const monthGroups = groupByMonth(allEntries);
 

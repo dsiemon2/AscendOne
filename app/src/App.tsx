@@ -9,6 +9,7 @@ import MorningStartup from "./components/MorningStartup";
 import LogoImage from "./components/LogoImage";
 import { useNotifications } from "./hooks/useNotifications";
 import { getLocalDateString } from "./utils/dateUtils";
+import { logger, logStartup } from "./utils/logger";
 
 const STARTUP_KEY = "ascendone_last_startup";
 
@@ -34,12 +35,13 @@ export default function App() {
   // Background notification scheduler — fires daily reminders even when app is in tray
   useNotifications();
 
-  useEffect(() => { bootstrap(); }, []);
+  useEffect(() => { logStartup().then(() => bootstrap()); }, []);
 
   async function bootstrap() {
     try {
       const db = await getDb();
       setDbReady(true);
+      logger.info("App/bootstrap", "Database initialized successfully");
 
       const profiles = await db.select<Array<{
         id: number; first_name: string; last_name: string; username: string;
@@ -62,7 +64,7 @@ export default function App() {
       );
       setTodayPoints(pts[0]?.total ?? 0);
     } catch (e) {
-      console.error("Bootstrap error:", e);
+      logger.error("App/bootstrap", "Failed to initialize app", { error: String(e) });
     } finally {
       setLoading(false);
     }

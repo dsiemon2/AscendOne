@@ -1,13 +1,19 @@
 import Database from "@tauri-apps/plugin-sql";
+import { logger } from "../utils/logger";
 
 let db: Database | null = null;
 
 export async function getDb(): Promise<Database> {
   if (db) return db;
-  const newDb = await Database.load("sqlite:ascendone.db");
-  await initializeSchema(newDb);
-  db = newDb; // Only cache AFTER successful initialization
-  return db;
+  try {
+    const newDb = await Database.load("sqlite:ascendone.db");
+    await initializeSchema(newDb);
+    db = newDb; // Only cache AFTER successful initialization
+    return db;
+  } catch (e) {
+    logger.error("database/getDb", "Failed to load or initialize database", { error: String(e) });
+    throw e;
+  }
 }
 
 async function runMigrations(db: Database): Promise<void> {
@@ -23,6 +29,7 @@ async function runMigrations(db: Database): Promise<void> {
     "SELECT version FROM db_migrations ORDER BY version"
   );
   const versions = new Set(applied.map((r) => r.version));
+  logger.info("database/migrations", `Applied migrations: [${[...versions].join(", ")}]`);
 
   // Migration 1: Add new profile columns if upgrading from old schema
   if (!versions.has(1)) {

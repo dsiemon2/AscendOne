@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { User, Lock, Palette, Bell, ChevronRight, Check, Eye, EyeOff, AlertTriangle, Moon } from "lucide-react";
-import { useThemeStore, ThemePeriod, themes } from "../store/themeStore";
+import { useThemeStore, ThemePeriod, ThemeColors, themes } from "../store/themeStore";
 import { useAppStore } from "../store/appStore";
 import { getDb } from "../db/database";
 import {
@@ -14,7 +14,7 @@ function Section({
   title, icon, children, theme,
 }: {
   title: string; icon: React.ReactNode; children: React.ReactNode;
-  theme: ReturnType<typeof useThemeStore>["theme"];
+  theme: ThemeColors;
 }) {
   return (
     <div style={{
@@ -45,7 +45,7 @@ function Field({
   label, children, theme,
 }: {
   label: string; children: React.ReactNode;
-  theme: ReturnType<typeof useThemeStore>["theme"];
+  theme: ThemeColors;
 }) {
   return (
     <div style={{ marginBottom: 16 }}>
@@ -68,7 +68,7 @@ function Input({
   value, onChange, placeholder, type = "text", theme,
 }: {
   value: string; onChange: (v: string) => void; placeholder?: string;
-  type?: string; theme: ReturnType<typeof useThemeStore>["theme"];
+  type?: string; theme: ThemeColors;
 }) {
   const [focused, setFocused] = useState(false);
   return (
@@ -101,7 +101,7 @@ function SaveButton({
   onClick, saving, saved, label = "Save Changes", theme,
 }: {
   onClick: () => void; saving: boolean; saved: boolean; label?: string;
-  theme: ReturnType<typeof useThemeStore>["theme"];
+  theme: ThemeColors;
 }) {
   return (
     <button

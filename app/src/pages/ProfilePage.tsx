@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { User, Mail, MapPin, Calendar, Star, Heart, BookOpen, Target, CheckSquare, Edit2, Award } from 'lucide-react';
-import { useThemeStore } from '../store/themeStore';
+import { Mail, MapPin, Calendar, Star, Heart, BookOpen, Target, Edit2, Award } from 'lucide-react';
+import { useThemeStore, ThemeColors } from '../store/themeStore';
 import { useAppStore } from '../store/appStore';
 import { getDb } from '../db/database';
 import { getLocalDateString } from '../utils/dateUtils';
@@ -44,7 +44,7 @@ function StatCell({
   icon, label, value, color, theme,
 }: {
   icon: React.ReactNode; label: string; value: string | number; color: string;
-  theme: ReturnType<typeof useThemeStore>['theme'];
+  theme: ThemeColors;
 }) {
   return (
     <div style={{

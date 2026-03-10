@@ -13,7 +13,7 @@ interface QuoteRow {
 
 export default function QuoteStrip() {
   const [quote, setQuote] = useState<QuoteRow | null>(null);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const [_loadError, setLoadError] = useState<string | null>(null);
   const { theme } = useThemeStore();
   const { todayPoints } = useAppStore();
 

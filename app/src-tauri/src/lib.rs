@@ -3,6 +3,7 @@ use tauri::{
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
     Manager,
 };
+use tauri_plugin_log::{Target, TargetKind, RotationStrategy};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -83,6 +84,22 @@ pub fn run() {
             }
         })
         // ── Plugins ───────────────────────────────────────────────────────
+        .plugin(
+            tauri_plugin_log::Builder::new()
+                .targets([
+                    // Write to file in the OS app log directory
+                    // Windows: %LOCALAPPDATA%\com.ascendone.app\logs\ascendone.log
+                    Target::new(TargetKind::LogDir {
+                        file_name: Some("ascendone".to_string()),
+                    }),
+                    // Also forward to the webview console (visible in DevTools)
+                    Target::new(TargetKind::Webview),
+                ])
+                .level(log::LevelFilter::Info)
+                .max_file_size(5_242_880) // 5 MB per log file
+                .rotation_strategy(RotationStrategy::KeepAll)
+                .build(),
+        )
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_sql::Builder::default().build())
         .plugin(tauri_plugin_notification::init())

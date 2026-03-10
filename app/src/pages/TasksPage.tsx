@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import {
-  CheckSquare, Plus, Circle, CheckCircle2, Trash2, Edit3,
+  Plus, Circle, CheckCircle2, Trash2, Edit3,
   CalendarDays, Star, X, AlertCircle, RotateCcw, Ban, MessageSquare,
 } from "lucide-react";
 import { getDb } from "../db/database";

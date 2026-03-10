@@ -181,7 +181,6 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
       );
       onComplete();
     } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
       setErrors({ _global: "Something went wrong. Please try again." });
       console.error("Save error:", err);
     } finally {

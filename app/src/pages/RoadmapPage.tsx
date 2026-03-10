@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Map, CheckCircle2, Clock, AlertCircle, TrendingUp, Star } from 'lucide-react';
-import { useThemeStore } from '../store/themeStore';
+import { useThemeStore, ThemeColors } from '../store/themeStore';
 import { getDb } from '../db/database';
 import { GOAL_CATEGORIES, getCat } from './GoalsPage';
 
@@ -73,7 +73,7 @@ function StatCard({
   icon, label, value, color, theme,
 }: {
   icon: React.ReactNode; label: string; value: number; color: string;
-  theme: ReturnType<typeof useThemeStore>['theme'];
+  theme: ThemeColors;
 }) {
   return (
     <div style={{
@@ -99,7 +99,7 @@ function StatCard({
 }
 
 // ── Goal card ─────────────────────────────────────────────────────────────────
-function GoalCard({ g, theme }: { g: Goal; theme: ReturnType<typeof useThemeStore>['theme'] }) {
+function GoalCard({ g, theme }: { g: Goal; theme: ThemeColors }) {
   const cat      = getCat(g.category);
   const color    = getCatColor(g.category);
   const done     = g.status === 'completed';

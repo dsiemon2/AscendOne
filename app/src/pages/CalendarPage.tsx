@@ -1501,7 +1501,7 @@ export default function CalendarPage() {
                   display:"flex", alignItems:"center", gap:6 }}>
                   ⚠️ This event is unresolved — what happened?
                 </p>
-                <div style={{ display:"flex", gap:6, marginBottom: quickOutcome && quickOutcome !== "completed" ? 10 : 0 }}>
+                <div style={{ display:"flex", gap:6, marginBottom: quickOutcome ? 10 : 0 }}>
                   <button
                     onClick={() => { markEventComplete(editEvent); closeModal(); }}
                     style={{ flex:1, padding:"7px 4px", borderRadius:9, border:"2px solid #10b981",
