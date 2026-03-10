@@ -1,0 +1,46 @@
+# ─── Node ────────────────────────────────────────────────────────────────────
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# ─── Rust / Tauri build artifacts (DO NOT COMMIT — several GB) ───────────────
+target/
+app/src-tauri/target/
+
+# ─── SQLite databases (safety net — personal data, never commit) ─────────────
+*.db
+*.db-shm
+*.db-wal
+
+# ─── Environment & secrets ───────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ─── OS files ────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── IDE / editor ────────────────────────────────────────────────────────────
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# ─── Tauri generated ─────────────────────────────────────────────────────────
+app/src-tauri/gen/
+src-tauri/gen/
+
+# ─── Claude Code (IDE tool config — local only) ──────────────────────────────
+.claude/
+app/.claude/
+
+# ─── Logs & local dev artifacts ──────────────────────────────────────────────
+*.log
+*.err
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+nul

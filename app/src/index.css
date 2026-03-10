@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #fdf6ec;
+  --color-cream-dark: #f5e6d0;
+  --color-amber: #f59e0b;
+  --color-amber-light: #fcd34d;
+  --color-amber-dark: #d97706;
+  --color-coral: #f97316;
+  --color-coral-light: #fed7aa;
+  --color-espresso: #2c1a0e;
+  --color-espresso-mid: #4a2e1a;
+  --color-espresso-light: #7c5c3e;
+  --color-sage: #10b981;
+  --color-sage-light: #d1fae5;
+  --color-sidebar: #1e120a;
+  --font-sans: "Inter", "Nunito", system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  background-color: #fdf6ec;
+  color: #2c1a0e;
+  font-family: "Inter", "Nunito", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f5e6d0;
+}
+::-webkit-scrollbar-thumb {
+  background: #d97706;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #f59e0b;
+}
+
+/* Selection */
+::selection {
+  background: #fcd34d;
+  color: #2c1a0e;
+}
+
+/* Hide native calendar/time picker icons but keep the click-to-open behaviour.
+   Stretch the invisible indicator over the whole input so any click opens the picker. */
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"] {
+  position: relative;
+}
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: auto;
+  height: auto;
+  opacity: 0;
+  cursor: pointer;
+}
