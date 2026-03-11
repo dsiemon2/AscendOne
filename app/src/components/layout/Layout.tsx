@@ -211,9 +211,11 @@ export default function Layout() {
                 {pageMap[currentPage] ?? <Dashboard />}
               </ErrorBoundary>
             </main>
-            <BottomBar />
           </div>
         </div>
+
+        {/* BottomBar spans the full width — below wizard col + content */}
+        <BottomBar />
       </div>
 
       {/* ── Lock screen overlay ── */}

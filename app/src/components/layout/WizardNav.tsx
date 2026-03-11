@@ -145,15 +145,15 @@ const LINKS_W   = 220;  // width of the nav links section
 const AVT_BUMP  = 14;   // how much avatar "bumps" out past the panel right edge
 
 function SlidePanel({
-  wizard, isOpen, topPx, onNavigate,
+  wizard, isOpen, topPx, onNavigate, onClose,
 }: {
   wizard: typeof WIZARDS[number];
   isOpen: boolean;
   topPx: number;
   onNavigate: (page: string) => void;
+  onClose: () => void;
 }) {
   const { currentPage } = useAppStore();
-  const { theme } = useThemeStore();
 
   // Auto-calculated panel height
   const panelH = HEADER_H + wizard.pages.length * LINK_H + PAD_V * 2 + 8;
@@ -202,8 +202,10 @@ function SlidePanel({
           width: LINKS_W,
           height: panelH,
           borderRadius: 14,
-          background: theme.bgCard,
-          border: `1px solid ${wizard.glow}40`,
+          background: "rgba(6,6,18,0.82)",
+          backdropFilter: "blur(22px)",
+          WebkitBackdropFilter: "blur(22px)",
+          border: `1px solid ${wizard.glow}45`,
           overflow: "hidden",
           position: "relative",
           flexShrink: 0,
@@ -251,7 +253,7 @@ function SlidePanel({
                 {wizard.name}
               </span>
               <span style={{
-                color: theme.textMuted,
+                color: "rgba(255,255,255,0.45)",
                 fontSize: 11,
                 fontStyle: "italic",
                 marginLeft: 2,
@@ -282,7 +284,7 @@ function SlidePanel({
                       outline: "none",
                     }}
                     onMouseEnter={e => {
-                      if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = `${wizard.glow}16`;
+                      if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = `${wizard.glow}28`;
                     }}
                     onMouseLeave={e => {
                       if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = "transparent";
@@ -290,7 +292,7 @@ function SlidePanel({
                   >
                     <span style={{ fontSize: 17, flexShrink: 0 }}>{page.icon}</span>
                     <span style={{
-                      color: isActive ? wizard.accent : theme.textSecondary,
+                      color: isActive ? wizard.accent : "rgba(255,255,255,0.82)",
                       fontSize: 14, fontWeight: isActive ? 700 : 500,
                       whiteSpace: "nowrap", flex: 1,
                     }}>
@@ -318,29 +320,39 @@ function SlidePanel({
           }} />
         </div>
 
-        {/* ── AVATAR MEDALLION — floats on the right, centered vertically ── */}
-        <div style={{
-          position: "absolute",
-          right: 0,
-          top: "50%",
-          transform: "translateY(-50%)",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: 4,
-        }}>
+        {/* ── AVATAR MEDALLION — floats on the right, click to close panel ── */}
+        <button
+          onClick={onClose}
+          title={`Close ${wizard.name}`}
+          style={{
+            position: "absolute",
+            right: 0,
+            top: "50%",
+            transform: "translateY(-50%)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 4,
+            background: "none",
+            border: "none",
+            padding: 0,
+            cursor: "pointer",
+            outline: "none",
+          }}
+        >
           {/* Outer ring */}
           <div style={{
             width: AVT_COL + AVT_BUMP,
             height: AVT_COL + AVT_BUMP,
             borderRadius: "50%",
-            background: `radial-gradient(circle, ${wizard.glow}30 0%, transparent 70%)`,
+            background: `radial-gradient(circle, ${wizard.glow}40 0%, transparent 70%)`,
             display: "flex", alignItems: "center", justifyContent: "center",
-            boxShadow: `0 0 20px ${wizard.glow}55`,
+            boxShadow: `0 0 24px ${wizard.glow}66`,
+            transition: "box-shadow 0.2s ease",
           }}>
             <AvatarCircle wizard={wizard} size={AVT_COL - 4} glow />
           </div>
-        </div>
+        </button>
 
       </div>
     </div>
@@ -425,8 +437,8 @@ export default function WizardNav() {
         alignItems: "center",
         paddingTop: TOP_OFFSET,
         gap: 18,
-        background: theme.bgCard,
-        borderRight: `1px solid ${theme.bgCardBorder}`,
+        background: "transparent",
+        borderRight: `1px solid ${theme.bgCardBorder}30`,
         flexShrink: 0,
         position: "relative",
         zIndex: 110,
@@ -459,9 +471,12 @@ export default function WizardNav() {
                 title={`${w.name} — ${w.label}`}
                 style={{
                   background: "none", border: "none", padding: 0,
-                  cursor: "pointer", outline: "none",
-                  transform: isOpen ? "translateX(6px)" : "translateX(0)",
-                  transition: "transform 0.22s ease",
+                  cursor: isOpen ? "default" : "pointer",
+                  outline: "none",
+                  opacity: isOpen ? 0 : 1,
+                  pointerEvents: isOpen ? "none" : "auto",
+                  transform: "translateX(0)",
+                  transition: "opacity 0.2s ease",
                 }}
               >
                 <AvatarCircle
@@ -500,6 +515,7 @@ export default function WizardNav() {
           isOpen={openWizard === w.id}
           topPx={wizardTops[w.id] ?? 200}
           onNavigate={handleNavigate}
+          onClose={() => setOpenWizard(null)}
         />
       ))}
 
