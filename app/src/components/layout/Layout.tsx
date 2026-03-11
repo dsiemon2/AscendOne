@@ -186,27 +186,33 @@ export default function Layout() {
           position: "relative",
           zIndex: 1,
           display: "flex",
+          flexDirection: "column",
           width: "100%",
           height: "100%",
           overflow: "hidden",
         }}
       >
-        <WizardNav />
-        <div className="flex flex-col flex-1 overflow-hidden">
-          <TopBar />
-          <main
-            className="flex-1 overflow-y-auto"
-            style={{
-              background: "transparent",
-              transition: "background 0.4s ease",
-              padding: "28px 32px 32px",
-            }}
-          >
-            <ErrorBoundary key={currentPage}>
-              {pageMap[currentPage] ?? <Dashboard />}
-            </ErrorBoundary>
-          </main>
-          <BottomBar />
+        {/* TopBar spans the full width — above wizard col + content */}
+        <TopBar />
+
+        {/* Horizontal row: wizard column on the left, content on the right */}
+        <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
+          <WizardNav />
+          <div className="flex flex-col flex-1 overflow-hidden">
+            <main
+              className="flex-1 overflow-y-auto"
+              style={{
+                background: "transparent",
+                transition: "background 0.4s ease",
+                padding: "28px 32px 32px",
+              }}
+            >
+              <ErrorBoundary key={currentPage}>
+                {pageMap[currentPage] ?? <Dashboard />}
+              </ErrorBoundary>
+            </main>
+            <BottomBar />
+          </div>
         </div>
       </div>
 

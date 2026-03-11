@@ -66,10 +66,10 @@ const WIZARDS = [
   },
 ] as const;
 
-const COL_WIDTH   = 72;   // wizard column width
-const AVATAR_SIZE = 56;   // avatar circle size
-const AVT_COL     = 58;   // avatar medallion size on panel right
-const TOP_OFFSET  = 80;   // px from top before first wizard
+const COL_WIDTH   = 88;   // wizard column width
+const AVATAR_SIZE = 66;   // avatar circle size
+const AVT_COL     = 86;   // avatar medallion size on panel right
+const TOP_OFFSET  = 60;   // px from top before first wizard
 
 // ─── Avatar circle — uses photo if available, emoji gradient otherwise ────────
 function AvatarCircle({
@@ -138,11 +138,11 @@ function AvatarCircle({
 }
 
 // ─── Slide-out panel ──────────────────────────────────────────────────────────
-const LINK_H    = 38;   // height per nav link row
-const HEADER_H  = 32;   // wizard name header height
-const PAD_V     = 14;   // top + bottom inner padding
-const LINKS_W   = 148;  // width of the nav links section
-const AVT_BUMP  = 10;   // how much avatar "bumps" out past the panel right edge
+const LINK_H    = 48;   // height per nav link row
+const HEADER_H  = 42;   // wizard name header height
+const PAD_V     = 18;   // top + bottom inner padding
+const LINKS_W   = 220;  // width of the nav links section
+const AVT_BUMP  = 14;   // how much avatar "bumps" out past the panel right edge
 
 function SlidePanel({
   wizard, isOpen, topPx, onNavigate,
@@ -238,21 +238,21 @@ function SlidePanel({
               marginBottom: 8, paddingLeft: 2,
             }}>
               <div style={{
-                width: 3, height: 14, borderRadius: 2,
+                width: 4, height: 18, borderRadius: 2,
                 background: `linear-gradient(180deg, ${wizard.glow}, ${wizard.accent}88)`,
                 flexShrink: 0,
               }} />
               <span style={{
                 color: wizard.accent,
-                fontSize: 10, fontWeight: 800,
-                letterSpacing: "0.14em",
+                fontSize: 13, fontWeight: 800,
+                letterSpacing: "0.12em",
                 textTransform: "uppercase",
               }}>
                 {wizard.name}
               </span>
               <span style={{
                 color: theme.textMuted,
-                fontSize: 9,
+                fontSize: 11,
                 fontStyle: "italic",
                 marginLeft: 2,
               }}>
@@ -270,7 +270,7 @@ function SlidePanel({
                     onClick={() => onNavigate(page.id)}
                     style={{
                       width: "100%", textAlign: "left",
-                      padding: "8px 10px",
+                      padding: "11px 14px",
                       borderRadius: 8,
                       border: isActive ? `1px solid ${wizard.glow}55` : "1px solid transparent",
                       background: isActive
@@ -288,19 +288,19 @@ function SlidePanel({
                       if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = "transparent";
                     }}
                   >
-                    <span style={{ fontSize: 14, flexShrink: 0 }}>{page.icon}</span>
+                    <span style={{ fontSize: 17, flexShrink: 0 }}>{page.icon}</span>
                     <span style={{
                       color: isActive ? wizard.accent : theme.textSecondary,
-                      fontSize: 12, fontWeight: isActive ? 700 : 500,
+                      fontSize: 14, fontWeight: isActive ? 700 : 500,
                       whiteSpace: "nowrap", flex: 1,
                     }}>
                       {page.label}
                     </span>
                     {isActive && (
                       <div style={{
-                        width: 5, height: 5, borderRadius: "50%", flexShrink: 0,
+                        width: 7, height: 7, borderRadius: "50%", flexShrink: 0,
                         background: wizard.glow,
-                        boxShadow: `0 0 6px ${wizard.glow}`,
+                        boxShadow: `0 0 8px ${wizard.glow}`,
                       }} />
                     )}
                   </button>
@@ -478,8 +478,8 @@ export default function WizardNav() {
                   position: "absolute", left: COL_WIDTH + 6, top: "50%",
                   transform: "translateY(-50%)", zIndex: 200,
                   background: "rgba(0,0,0,0.88)", color: "#fff",
-                  borderRadius: 8, padding: "5px 10px", whiteSpace: "nowrap",
-                  fontSize: 12, fontWeight: 600, pointerEvents: "none",
+                  borderRadius: 8, padding: "6px 12px", whiteSpace: "nowrap",
+                  fontSize: 13, fontWeight: 600, pointerEvents: "none",
                   boxShadow: "0 4px 14px rgba(0,0,0,0.4)",
                   border: `1px solid ${w.glow}44`,
                 }}>
