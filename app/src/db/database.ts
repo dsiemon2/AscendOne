@@ -495,6 +495,12 @@ async function runMigrations(db: Database): Promise<void> {
 
     await db.execute("INSERT INTO db_migrations (version) VALUES (17)");
   }
+
+  // Migration 18: Starred journal entries
+  if (!versions.has(18)) {
+    await db.execute(`ALTER TABLE journal_entries ADD COLUMN starred INTEGER DEFAULT 0`);
+    await db.execute("INSERT INTO db_migrations (version) VALUES (18)");
+  }
 }
 
 async function initializeSchema(db: Database): Promise<void> {

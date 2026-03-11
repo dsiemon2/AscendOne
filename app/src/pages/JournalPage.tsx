@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Save, Plus, ChevronDown, ChevronRight, BookOpen } from 'lucide-react';
+import { Save, Plus, ChevronDown, ChevronRight, BookOpen, Star } from 'lucide-react';
 import { useThemeStore } from '../store/themeStore';
 import { useAppStore } from '../store/appStore';
 import { getDb } from '../db/database';
@@ -21,6 +21,7 @@ interface JEntry {
   word_count: number;
   points_awarded: number;
   created_at: string;
+  starred: number;
 }
 
 interface MonthGroup {
@@ -74,6 +75,7 @@ export default function JournalPage() {
   const [expandedMonths, setExpandedMonths] = useState<Set<string>>(
     () => new Set([getLocalDateString().slice(0, 7)])  // current local month
   );
+  const [showStarredOnly, setShowStarredOnly] = useState(false);
 
   // ── Load all entries for history panel ──────────────────────────────────────
   const loadAllEntries = useCallback(async () => {
@@ -153,9 +155,21 @@ export default function JournalPage() {
     setTimeout(() => textareaRef.current?.focus(), 50);
   }
 
+  // ── Star toggle ─────────────────────────────────────────────────────────────
+  const toggleStar = useCallback(async (e: JEntry, evt: React.MouseEvent) => {
+    evt.stopPropagation();
+    const db = await getDb();
+    const newVal = e.starred ? 0 : 1;
+    await db.execute(`UPDATE journal_entries SET starred=? WHERE id=?`, [newVal, e.id]);
+    setAllEntries(prev => prev.map(x => x.id === e.id ? { ...x, starred: newVal } : x));
+    if (entry?.id === e.id) setEntry(prev => prev ? { ...prev, starred: newVal } : prev);
+  }, [entry]);
+
   // ── Helpers ─────────────────────────────────────────────────────────────────
-  const wordCount  = content.trim() ? content.trim().split(/\s+/).length : 0;
-  const monthGroups = groupByMonth(allEntries);
+  const wordCount     = content.trim() ? content.trim().split(/\s+/).length : 0;
+  const starredEntries = allEntries.filter(e => e.starred);
+  const visibleEntries = showStarredOnly ? starredEntries : allEntries;
+  const monthGroups   = groupByMonth(visibleEntries);
 
   function toggleMonth(key: string) {
     setExpandedMonths(prev => {
@@ -191,9 +205,19 @@ export default function JournalPage() {
               }
             </p>
           </div>
-          <button onClick={newEntry} style={{ background: theme.accentGradient, color: '#fff', border: 'none', borderRadius: 10, padding: '10px 18px', display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>
-            <Plus size={16} /> New Entry
-          </button>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            {entry && (
+              <button
+                onClick={e => entry && toggleStar(entry, e)}
+                title={entry?.starred ? 'Unstar entry' : 'Star entry'}
+                style={{ background: entry?.starred ? '#f59e0b22' : theme.bgCard, border: `1px solid ${entry?.starred ? '#f59e0b' : theme.bgCardBorder}`, borderRadius: 10, padding: '10px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, color: entry?.starred ? '#f59e0b' : theme.textMuted, fontWeight: 600, fontSize: 14, transition: 'all 0.15s' }}>
+                <Star size={16} fill={entry?.starred ? '#f59e0b' : 'none'} />
+              </button>
+            )}
+            <button onClick={newEntry} style={{ background: theme.accentGradient, color: '#fff', border: 'none', borderRadius: 10, padding: '10px 18px', display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>
+              <Plus size={16} /> New Entry
+            </button>
+          </div>
         </div>
 
         {/* Writing card */}
@@ -288,11 +312,23 @@ export default function JournalPage() {
           <span style={{ marginLeft: 'auto', background: theme.accentLight, color: theme.accent, borderRadius: 20, padding: '1px 8px', fontSize: 11, fontWeight: 700 }}>
             {allEntries.length}
           </span>
+          <button
+            onClick={() => setShowStarredOnly(p => !p)}
+            title={showStarredOnly ? 'Show all entries' : 'Show starred only'}
+            style={{ background: showStarredOnly ? '#f59e0b22' : 'transparent', border: `1px solid ${showStarredOnly ? '#f59e0b' : theme.bgCardBorder}`, borderRadius: 8, padding: '3px 7px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, color: showStarredOnly ? '#f59e0b' : theme.textMuted, fontSize: 11, fontWeight: 600, transition: 'all 0.15s' }}>
+            <Star size={12} fill={showStarredOnly ? '#f59e0b' : 'none'} />
+            {starredEntries.length}
+          </button>
         </div>
 
         {allEntries.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '40px 0', color: theme.textMuted, fontSize: 13 }}>
             No entries yet.<br />Write your first one!
+          </div>
+        ) : showStarredOnly && starredEntries.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '40px 0', color: theme.textMuted, fontSize: 13 }}>
+            <Star size={24} style={{ marginBottom: 8, opacity: 0.3 }} /><br />
+            No starred entries yet.<br />Click the ★ on any entry to save it here.
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4, maxHeight: 'calc(100vh - 180px)', overflowY: 'auto' }}>
@@ -331,16 +367,25 @@ export default function JournalPage() {
                           >
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                               <div style={{ flex: 1, minWidth: 0 }}>
-                                <div style={{ color: isActive ? theme.accent : theme.textPrimary, fontSize: 13, fontWeight: 600 }}>
+                                <div style={{ color: isActive ? theme.accent : theme.textPrimary, fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                                  {e.starred ? <Star size={11} fill="#f59e0b" color="#f59e0b" style={{ flexShrink: 0 }} /> : null}
                                   {fmtDate(e.entry_date)}
                                 </div>
                                 <div style={{ color: theme.textMuted, fontSize: 11, marginTop: 1 }}>
                                   {fmtTime(e.created_at)}  ·  {e.word_count} words
                                 </div>
                               </div>
-                              <span style={{ fontSize: 16, marginLeft: 6, flexShrink: 0 }}>
-                                {MOODS.find(m => m.v === e.mood)?.emoji}
-                              </span>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0, marginLeft: 6 }}>
+                                <button
+                                  onClick={evt => toggleStar(e, evt)}
+                                  title={e.starred ? 'Unstar' : 'Star'}
+                                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, display: 'flex', alignItems: 'center', color: e.starred ? '#f59e0b' : theme.textMuted, opacity: e.starred ? 1 : 0.4, transition: 'all 0.15s' }}>
+                                  <Star size={13} fill={e.starred ? '#f59e0b' : 'none'} />
+                                </button>
+                                <span style={{ fontSize: 16 }}>
+                                  {MOODS.find(m => m.v === e.mood)?.emoji}
+                                </span>
+                              </div>
                             </div>
                           </button>
                         );
