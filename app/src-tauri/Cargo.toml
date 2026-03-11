@@ -1,6 +1,6 @@
 [package]
 name = "ascend-one"
-version = "0.1.0-beta"
+version = "0.1.0-redesign"
 description = "AscendOne - Law of Attraction Journal"
 authors = ["AscendOne"]
 edition = "2021"
