@@ -19,6 +19,9 @@ export default function QuoteStrip() {
 
   useEffect(() => {
     loadRandomQuote();
+    // Auto-rotate every hour
+    const interval = setInterval(loadRandomQuote, 60 * 60 * 1000);
+    return () => clearInterval(interval);
   }, []);
 
   async function loadRandomQuote() {
