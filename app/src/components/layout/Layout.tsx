@@ -1,7 +1,8 @@
 import { useEffect, useRef, useCallback } from "react";
 import type { ReactElement } from "react";
-import Sidebar from "./Sidebar";
-import QuoteStrip from "./QuoteStrip";
+import WizardNav from "./WizardNav";
+import TopBar from "./TopBar";
+import BottomBar from "./BottomBar";
 import GalaxyBackground from "./GalaxyBackground";
 import ErrorBoundary from "../ErrorBoundary";
 import PinLock from "../PinLock";
@@ -190,9 +191,9 @@ export default function Layout() {
           overflow: "hidden",
         }}
       >
-        <Sidebar />
+        <WizardNav />
         <div className="flex flex-col flex-1 overflow-hidden">
-          <QuoteStrip />
+          <TopBar />
           <main
             className="flex-1 overflow-y-auto"
             style={{
@@ -205,6 +206,7 @@ export default function Layout() {
               {pageMap[currentPage] ?? <Dashboard />}
             </ErrorBoundary>
           </main>
+          <BottomBar />
         </div>
       </div>
 
