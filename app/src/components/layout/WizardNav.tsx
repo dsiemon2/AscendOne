@@ -6,12 +6,13 @@ import { useThemeStore } from "../../store/themeStore";
 const WIZARDS = [
   {
     id: "merlin",
-    name: "Merlin",
+    name: "Merlyn",
     label: "Time & Planning",
     gradient: "linear-gradient(150deg, #1a3a6b 0%, #2563eb 60%, #60a5fa 100%)",
     panelGradient: "linear-gradient(135deg, #1a3a6b18 0%, #2563eb10 100%)",
     glow: "#3b82f6",
     symbol: "⏳",
+    image: "/wizards/merlyn.png",
     accent: "#3b82f6",
     pages: [
       { id: "calendar", label: "Calendar",  icon: "📅" },
@@ -70,7 +71,7 @@ const AVATAR_SIZE = 56;   // avatar circle size
 const AVT_COL     = 58;   // avatar medallion size on panel right
 const TOP_OFFSET  = 80;   // px from top before first wizard
 
-// ─── Placeholder avatar circle ────────────────────────────────────────────────
+// ─── Avatar circle — uses photo if available, emoji gradient otherwise ────────
 function AvatarCircle({
   wizard, size = AVATAR_SIZE, glow = false, dimmed = false,
 }: {
@@ -79,10 +80,12 @@ function AvatarCircle({
   glow?: boolean;
   dimmed?: boolean;
 }) {
+  const hasImage = "image" in wizard && !!wizard.image;
+
   return (
     <div style={{
       width: size, height: size, borderRadius: "50%",
-      background: wizard.gradient,
+      background: hasImage ? "transparent" : wizard.gradient,
       border: glow ? `2.5px solid ${wizard.glow}` : "2.5px solid transparent",
       display: "flex", alignItems: "center", justifyContent: "center",
       fontSize: size * 0.42,
@@ -95,15 +98,41 @@ function AvatarCircle({
       position: "relative" as const,
       overflow: "hidden",
     }}>
-      {/* Shimmer */}
-      <div style={{
-        position: "absolute", inset: 0, borderRadius: "50%",
-        background: "linear-gradient(135deg, rgba(255,255,255,0.22) 0%, transparent 55%)",
-        pointerEvents: "none",
-      }} />
-      <span style={{ position: "relative", zIndex: 1, filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.6))" }}>
-        {wizard.symbol}
-      </span>
+      {hasImage ? (
+        /* Real wizard portrait */
+        <img
+          src={(wizard as typeof wizard & { image: string }).image}
+          alt={wizard.name}
+          style={{
+            width: "100%", height: "100%",
+            objectFit: "cover",
+            objectPosition: "center top",
+            borderRadius: "50%",
+            display: "block",
+          }}
+        />
+      ) : (
+        <>
+          {/* Shimmer for emoji placeholder */}
+          <div style={{
+            position: "absolute", inset: 0, borderRadius: "50%",
+            background: "linear-gradient(135deg, rgba(255,255,255,0.22) 0%, transparent 55%)",
+            pointerEvents: "none",
+          }} />
+          <span style={{ position: "relative", zIndex: 1, filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.6))" }}>
+            {wizard.symbol}
+          </span>
+        </>
+      )}
+
+      {/* Glow ring overlay for both types */}
+      {glow && (
+        <div style={{
+          position: "absolute", inset: 0, borderRadius: "50%",
+          boxShadow: `inset 0 0 8px ${wizard.glow}44`,
+          pointerEvents: "none",
+        }} />
+      )}
     </div>
   );
 }
