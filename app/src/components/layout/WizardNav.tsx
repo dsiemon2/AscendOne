@@ -67,8 +67,7 @@ const WIZARDS = [
 
 const COL_WIDTH   = 72;   // wizard column width
 const AVATAR_SIZE = 56;   // avatar circle size
-const PANEL_W     = 190;  // slide-out panel width (links + avatar right-side)
-const AVT_COL     = 64;   // right section of panel reserved for the avatar
+const AVT_COL     = 58;   // avatar medallion size on panel right
 const TOP_OFFSET  = 80;   // px from top before first wizard
 
 // ─── Placeholder avatar circle ────────────────────────────────────────────────
@@ -110,139 +109,210 @@ function AvatarCircle({
 }
 
 // ─── Slide-out panel ──────────────────────────────────────────────────────────
+const LINK_H    = 38;   // height per nav link row
+const HEADER_H  = 32;   // wizard name header height
+const PAD_V     = 14;   // top + bottom inner padding
+const LINKS_W   = 148;  // width of the nav links section
+const AVT_BUMP  = 10;   // how much avatar "bumps" out past the panel right edge
+
 function SlidePanel({
   wizard, isOpen, topPx, onNavigate,
 }: {
   wizard: typeof WIZARDS[number];
   isOpen: boolean;
-  topPx: number;       // vertical center of the selected wizard in the column
+  topPx: number;
   onNavigate: (page: string) => void;
 }) {
   const { currentPage } = useAppStore();
   const { theme } = useThemeStore();
 
+  // Auto-calculated panel height
+  const panelH = HEADER_H + wizard.pages.length * LINK_H + PAD_V * 2 + 8;
+
+  // Center on the wizard, clamped to viewport
+  const TOP_BAR_H    = 44;
+  const BOT_BAR_H    = 44;
+  const minTop       = TOP_BAR_H + 10;
+  const maxTop       = window.innerHeight - BOT_BAR_H - panelH - 10;
+  const rawTop       = topPx - panelH / 2;
+  const finalTop     = Math.max(minTop, Math.min(maxTop, rawTop));
+
+  // Total panel width: links section + avatar section
+  const totalW = LINKS_W + AVT_COL;
+
   return (
     <div style={{
       position: "fixed",
-      top: 44,                        // below TopBar
-      bottom: 44,                     // above BottomBar
+      top: finalTop,
       left: COL_WIDTH,
-      width: PANEL_W,
+      width: totalW + AVT_BUMP,
       zIndex: 100,
-      transform: isOpen ? "translateX(0)" : `translateX(-${PANEL_W + 4}px)`,
-      transition: "transform 0.22s cubic-bezier(0.4, 0, 0.2, 1)",
+      transform: isOpen ? "translateX(0)" : `translateX(-${totalW + AVT_BUMP + 6}px)`,
+      transition: "transform 0.22s cubic-bezier(0.4, 0, 0.2, 1), top 0.15s ease",
       pointerEvents: isOpen ? "auto" : "none",
     }}>
+
+      {/* Outer glow halo */}
       <div style={{
-        height: "100%",
-        background: theme.bgCard,
-        backgroundImage: wizard.panelGradient,
-        borderRight: `1px solid ${wizard.glow}30`,
-        boxShadow: `3px 0 20px rgba(0,0,0,0.28)`,
+        position: "absolute", inset: -1,
+        borderRadius: 16,
+        boxShadow: `0 0 28px ${wizard.glow}44, 0 8px 32px rgba(0,0,0,0.45)`,
+        pointerEvents: "none",
+      }} />
+
+      <div style={{
+        height: panelH,
         display: "flex",
-        overflow: "hidden",
+        borderRadius: 14,
+        overflow: "visible",
         position: "relative",
       }}>
 
-        {/* ── LEFT: nav links ── */}
+        {/* ── LINKS CARD ── */}
         <div style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          padding: "0 8px 0 10px",
-          gap: 4,
+          width: LINKS_W,
+          height: panelH,
+          borderRadius: 14,
+          background: theme.bgCard,
+          border: `1px solid ${wizard.glow}40`,
+          overflow: "hidden",
+          position: "relative",
+          flexShrink: 0,
         }}>
-          {/* Wizard name strip */}
+
+          {/* Top gradient bar in wizard color */}
           <div style={{
-            color: wizard.accent,
-            fontSize: 10,
-            fontWeight: 800,
-            letterSpacing: "0.12em",
-            textTransform: "uppercase",
-            marginBottom: 8,
-            paddingLeft: 6,
-          }}>
-            {wizard.name}
+            height: 4,
+            background: `linear-gradient(90deg, ${wizard.glow}, ${wizard.accent}88)`,
+          }} />
+
+          {/* Subtle mesh/dot pattern overlay */}
+          <div style={{
+            position: "absolute", inset: 0,
+            backgroundImage: `radial-gradient(${wizard.glow}18 1px, transparent 1px)`,
+            backgroundSize: "18px 18px",
+            pointerEvents: "none",
+          }} />
+
+          {/* Gradient bg */}
+          <div style={{
+            position: "absolute", inset: 0,
+            background: `linear-gradient(135deg, ${wizard.glow}12 0%, transparent 55%, ${wizard.glow}08 100%)`,
+            pointerEvents: "none",
+          }} />
+
+          <div style={{ position: "relative", zIndex: 1, padding: `10px 10px ${PAD_V}px` }}>
+
+            {/* Wizard name header */}
+            <div style={{
+              display: "flex", alignItems: "center", gap: 6,
+              marginBottom: 8, paddingLeft: 2,
+            }}>
+              <div style={{
+                width: 3, height: 14, borderRadius: 2,
+                background: `linear-gradient(180deg, ${wizard.glow}, ${wizard.accent}88)`,
+                flexShrink: 0,
+              }} />
+              <span style={{
+                color: wizard.accent,
+                fontSize: 10, fontWeight: 800,
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+              }}>
+                {wizard.name}
+              </span>
+              <span style={{
+                color: theme.textMuted,
+                fontSize: 9,
+                fontStyle: "italic",
+                marginLeft: 2,
+              }}>
+                — {wizard.label}
+              </span>
+            </div>
+
+            {/* Nav links */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              {wizard.pages.map(page => {
+                const isActive = currentPage === page.id;
+                return (
+                  <button
+                    key={page.id}
+                    onClick={() => onNavigate(page.id)}
+                    style={{
+                      width: "100%", textAlign: "left",
+                      padding: "8px 10px",
+                      borderRadius: 8,
+                      border: isActive ? `1px solid ${wizard.glow}55` : "1px solid transparent",
+                      background: isActive
+                        ? `linear-gradient(90deg, ${wizard.glow}28, ${wizard.glow}0f)`
+                        : "transparent",
+                      cursor: "pointer",
+                      display: "flex", alignItems: "center", gap: 8,
+                      transition: "all 0.12s ease",
+                      outline: "none",
+                    }}
+                    onMouseEnter={e => {
+                      if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = `${wizard.glow}16`;
+                    }}
+                    onMouseLeave={e => {
+                      if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+                    }}
+                  >
+                    <span style={{ fontSize: 14, flexShrink: 0 }}>{page.icon}</span>
+                    <span style={{
+                      color: isActive ? wizard.accent : theme.textSecondary,
+                      fontSize: 12, fontWeight: isActive ? 700 : 500,
+                      whiteSpace: "nowrap", flex: 1,
+                    }}>
+                      {page.label}
+                    </span>
+                    {isActive && (
+                      <div style={{
+                        width: 5, height: 5, borderRadius: "50%", flexShrink: 0,
+                        background: wizard.glow,
+                        boxShadow: `0 0 6px ${wizard.glow}`,
+                      }} />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
           </div>
 
-          {wizard.pages.map(page => {
-            const isActive = currentPage === page.id;
-            return (
-              <button
-                key={page.id}
-                onClick={() => onNavigate(page.id)}
-                style={{
-                  width: "100%", textAlign: "left",
-                  padding: "9px 10px",
-                  borderRadius: 9,
-                  border: isActive ? `1px solid ${wizard.glow}50` : "1px solid transparent",
-                  background: isActive
-                    ? `linear-gradient(135deg, ${wizard.glow}22, ${wizard.glow}0a)`
-                    : "transparent",
-                  cursor: "pointer",
-                  display: "flex", alignItems: "center", gap: 9,
-                  transition: "all 0.13s ease",
-                  outline: "none",
-                }}
-                onMouseEnter={e => {
-                  if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = `${wizard.glow}14`;
-                }}
-                onMouseLeave={e => {
-                  if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = "transparent";
-                }}
-              >
-                <span style={{ fontSize: 15, flexShrink: 0 }}>{page.icon}</span>
-                <span style={{
-                  color: isActive ? wizard.accent : theme.textSecondary,
-                  fontSize: 13, fontWeight: isActive ? 700 : 500,
-                  whiteSpace: "nowrap",
-                }}>
-                  {page.label}
-                </span>
-                {isActive && (
-                  <div style={{
-                    marginLeft: "auto", width: 5, height: 5, borderRadius: "50%",
-                    background: wizard.glow, boxShadow: `0 0 5px ${wizard.glow}`,
-                    flexShrink: 0,
-                  }} />
-                )}
-              </button>
-            );
-          })}
+          {/* Bottom glow fade */}
+          <div style={{
+            position: "absolute", bottom: 0, left: 0, right: 0, height: 24,
+            background: `linear-gradient(0deg, ${wizard.glow}0f, transparent)`,
+            pointerEvents: "none",
+          }} />
         </div>
 
-        {/* ── RIGHT: avatar column — appears to have "slid out" of the wizard strip ── */}
+        {/* ── AVATAR MEDALLION — floats on the right, centered vertically ── */}
         <div style={{
-          width: AVT_COL,
+          position: "absolute",
+          right: 0,
+          top: "50%",
+          transform: "translateY(-50%)",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          justifyContent: "flex-start",
-          paddingTop: Math.max(12, topPx - 44 - AVATAR_SIZE / 2), // align with wizard's row
-          borderLeft: `1px solid ${wizard.glow}18`,
-          background: `linear-gradient(180deg, ${wizard.glow}12 0%, transparent 60%)`,
-          flexShrink: 0,
+          gap: 4,
         }}>
-          <AvatarCircle wizard={wizard} size={AVATAR_SIZE} glow />
+          {/* Outer ring */}
           <div style={{
-            color: wizard.accent,
-            fontSize: 9,
-            fontWeight: 700,
-            marginTop: 5,
-            letterSpacing: "0.06em",
-            textTransform: "uppercase",
+            width: AVT_COL + AVT_BUMP,
+            height: AVT_COL + AVT_BUMP,
+            borderRadius: "50%",
+            background: `radial-gradient(circle, ${wizard.glow}30 0%, transparent 70%)`,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            boxShadow: `0 0 20px ${wizard.glow}55`,
           }}>
-            {wizard.name}
+            <AvatarCircle wizard={wizard} size={AVT_COL - 4} glow />
           </div>
         </div>
 
-        {/* Decorative glow edge on right */}
-        <div style={{
-          position: "absolute", right: 0, top: 0, bottom: 0, width: 1,
-          background: `linear-gradient(180deg, transparent, ${wizard.glow}55, transparent)`,
-          pointerEvents: "none",
-        }} />
       </div>
     </div>
   );
