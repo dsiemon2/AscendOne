@@ -170,8 +170,9 @@ function SlidePanel({
       left: COL_WIDTH,
       width: LINKS_W,
       zIndex: 100,
-      transform: isOpen ? "translateX(0)" : `translateX(-${LINKS_W + 6}px)`,
-      transition: "transform 0.22s cubic-bezier(0.4, 0, 0.2, 1), top 0.15s ease",
+      transform: isOpen ? "translateX(0)" : `translateX(-${LINKS_W + COL_WIDTH + 10}px)`,
+      opacity: isOpen ? 1 : 0,
+      transition: "transform 0.22s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.18s ease, top 0.15s ease",
       pointerEvents: isOpen ? "auto" : "none",
     }}>
 
