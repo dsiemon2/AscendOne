@@ -3,6 +3,7 @@ import { Home, Quote, Settings, User } from "lucide-react";
 import { getDb } from "../../db/database";
 import { useThemeStore } from "../../store/themeStore";
 import { useAppStore } from "../../store/appStore";
+import logoTransparent from "../../assets/logo-transparent.png";
 
 interface QuoteRow {
   id: number;
@@ -67,6 +68,24 @@ export default function TopBar() {
       zIndex: 50,
       transition: "background 0.4s ease",
     }}>
+
+      {/* Logo — anchored above the wizard column */}
+      <div style={{
+        width: 76,
+        flexShrink: 0,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}>
+        <img
+          src={logoTransparent}
+          alt="AscendOne"
+          style={{ height: 28, objectFit: "contain", display: "block" }}
+        />
+      </div>
+
+      {/* Divider */}
+      <div style={{ width: 1, height: 22, background: theme.bgCardBorder, flexShrink: 0 }} />
 
       {/* Home button */}
       <button
