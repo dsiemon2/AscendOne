@@ -463,19 +463,21 @@ export default function WizardNav() {
                 />
               </button>
 
-              {/* Name label below avatar — always visible */}
+              {/* Category label below avatar — always visible */}
               <span style={{
                 color: isOpen || isActive ? w.accent : theme.textMuted,
-                fontSize: 9,
-                fontWeight: 700,
-                letterSpacing: "0.07em",
+                fontSize: 8,
+                fontWeight: 600,
+                letterSpacing: "0.04em",
                 textTransform: "uppercase",
                 textAlign: "center",
+                lineHeight: 1.25,
+                maxWidth: COL_WIDTH - 8,
                 userSelect: "none",
                 pointerEvents: "none",
                 transition: "color 0.2s ease",
               }}>
-                {w.name}
+                {w.label}
               </span>
             </div>
           );
