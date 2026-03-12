@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useAppStore } from "../../store/appStore";
 import { useThemeStore } from "../../store/themeStore";
+import logoTransparent from "../../assets/logo-transparent.png";
 
 // ─── Wizard definitions ───────────────────────────────────────────────────────
 const WIZARDS = [
@@ -71,7 +72,7 @@ const WIZARDS = [
 
 const COL_WIDTH   = 88;   // wizard column width
 const AVATAR_SIZE = 66;   // avatar circle size
-const TOP_OFFSET  = 60;   // px from top before first wizard
+const TOP_OFFSET  = 12;   // px from top before logo
 
 // ─── Avatar circle — uses photo if available, emoji gradient otherwise ────────
 function AvatarCircle({
@@ -411,6 +412,22 @@ export default function WizardNav() {
         position: "relative",
         zIndex: 110,
       }}>
+        {/* Logo at top of column */}
+        <div style={{
+          width: COL_WIDTH - 8,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          marginBottom: 10,
+          flexShrink: 0,
+        }}>
+          <img
+            src={logoTransparent}
+            alt="AscendOne"
+            style={{ width: COL_WIDTH - 12, objectFit: "contain", display: "block" }}
+          />
+        </div>
+
         {WIZARDS.map(w => {
           const isOpen   = openWizard === w.id;
           const isActive = !isOpen && activeWizard?.id === w.id;
