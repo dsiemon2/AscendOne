@@ -45,6 +45,7 @@ const WIZARDS = [
     panelGradient: "linear-gradient(135deg, #6b2d0a18 0%, #d9770610 100%)",
     glow: "#f59e0b",
     symbol: "📜",
+    image: "/wizards/taliesin.png",
     accent: "#f59e0b",
     pages: [
       { id: "journal",    label: "Journal",    icon: "📖" },
