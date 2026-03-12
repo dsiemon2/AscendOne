@@ -28,6 +28,7 @@ const WIZARDS = [
     panelGradient: "linear-gradient(135deg, #0c354718 0%, #0891b210 100%)",
     glow: "#06b6d4",
     symbol: "🔮",
+    image: "/wizards/nimue.png",
     accent: "#06b6d4",
     pages: [
       { id: "vision-board", label: "Vision Board", icon: "🌅" },
@@ -137,82 +138,84 @@ function AvatarCircle({
 }
 
 // ─── Slide-out panel ──────────────────────────────────────────────────────────
-const LINK_H    = 48;   // height per nav link row
-const HEADER_H  = 42;   // wizard name header height
-const PAD_V     = 18;   // top + bottom inner padding
-const LINKS_W   = 220;  // width of the nav links section
+const LINK_H         = 44;   // height per nav link row
+const HEADER_H       = 38;   // wizard name header height
+const PAD_V          = 14;   // top + bottom inner padding
+const LINKS_W        = 290;  // width of the nav links section (wider = more rectangular)
+const PANEL_AVT_SIZE = 74;   // avatar size on the right side of the panel
+const PANEL_AVT_GAP  = 12;   // gap between links card and avatar
 
 function SlidePanel({
-  wizard, isOpen, topPx, onNavigate,
+  wizard, isOpen, topPx, onNavigate, onClose,
 }: {
   wizard: typeof WIZARDS[number];
   isOpen: boolean;
   topPx: number;
   onNavigate: (page: string) => void;
+  onClose: () => void;
 }) {
   const { currentPage } = useAppStore();
 
   // Auto-calculated panel height
   const panelH = HEADER_H + wizard.pages.length * LINK_H + PAD_V * 2 + 8;
 
+  // Total width: links card + gap + avatar
+  const panelTotalW = LINKS_W + PANEL_AVT_GAP + PANEL_AVT_SIZE;
+
   // Center on the wizard, clamped to viewport
-  const TOP_BAR_H    = 44;
-  const BOT_BAR_H    = 44;
-  const minTop       = TOP_BAR_H + 10;
-  const maxTop       = window.innerHeight - BOT_BAR_H - panelH - 10;
-  const rawTop       = topPx - panelH / 2;
-  const finalTop     = Math.max(minTop, Math.min(maxTop, rawTop));
+  const TOP_BAR_H = 44;
+  const BOT_BAR_H = 44;
+  const minTop    = TOP_BAR_H + 10;
+  const maxTop    = window.innerHeight - BOT_BAR_H - panelH - 10;
+  const rawTop    = topPx - panelH / 2;
+  const finalTop  = Math.max(minTop, Math.min(maxTop, rawTop));
 
   return (
     <div style={{
       position: "fixed",
       top: finalTop,
       left: COL_WIDTH,
-      width: LINKS_W,
+      width: panelTotalW,
       zIndex: 100,
-      transform: isOpen ? "translateX(0)" : `translateX(-${LINKS_W + COL_WIDTH + 10}px)`,
+      display: "flex",
+      alignItems: "center",
+      gap: PANEL_AVT_GAP,
+      transform: isOpen ? "translateX(0)" : `translateX(-${panelTotalW + COL_WIDTH + 10}px)`,
       opacity: isOpen ? 1 : 0,
-      transition: "transform 0.22s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.18s ease, top 0.15s ease",
+      transition: "transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.18s ease, top 0.15s ease",
       pointerEvents: isOpen ? "auto" : "none",
     }}>
 
-      {/* Outer glow halo */}
-      <div style={{
-        position: "absolute", inset: -1,
-        borderRadius: 16,
-        boxShadow: `0 0 28px ${wizard.glow}44, 0 8px 32px rgba(0,0,0,0.45)`,
-        pointerEvents: "none",
-      }} />
+      {/* ── LINKS CARD (left) ── */}
+      <div style={{ position: "relative", flexShrink: 0 }}>
 
-      <div style={{
-        height: panelH,
-        display: "flex",
-        borderRadius: 14,
-        overflow: "visible",
-        position: "relative",
-      }}>
+        {/* Glow halo around links card */}
+        <div style={{
+          position: "absolute", inset: -1,
+          borderRadius: 16,
+          boxShadow: `0 0 28px ${wizard.glow}44, 0 8px 32px rgba(0,0,0,0.45)`,
+          pointerEvents: "none",
+        }} />
 
-        {/* ── LINKS CARD ── */}
         <div style={{
           width: LINKS_W,
           height: panelH,
           borderRadius: 14,
-          background: "rgba(6,6,18,0.82)",
+          background: "rgba(6,6,18,0.85)",
           backdropFilter: "blur(22px)",
           WebkitBackdropFilter: "blur(22px)",
           border: `1px solid ${wizard.glow}45`,
           overflow: "hidden",
           position: "relative",
-          flexShrink: 0,
         }}>
 
-          {/* Top gradient bar in wizard color */}
+          {/* Top gradient bar */}
           <div style={{
             height: 4,
             background: `linear-gradient(90deg, ${wizard.glow}, ${wizard.accent}88)`,
           }} />
 
-          {/* Subtle mesh/dot pattern overlay */}
+          {/* Dot mesh overlay */}
           <div style={{
             position: "absolute", inset: 0,
             backgroundImage: `radial-gradient(${wizard.glow}18 1px, transparent 1px)`,
@@ -220,16 +223,16 @@ function SlidePanel({
             pointerEvents: "none",
           }} />
 
-          {/* Gradient bg */}
+          {/* Gradient tint */}
           <div style={{
             position: "absolute", inset: 0,
             background: `linear-gradient(135deg, ${wizard.glow}12 0%, transparent 55%, ${wizard.glow}08 100%)`,
             pointerEvents: "none",
           }} />
 
-          <div style={{ position: "relative", zIndex: 1, padding: `10px 10px ${PAD_V}px` }}>
+          <div style={{ position: "relative", zIndex: 1, padding: `10px 14px ${PAD_V}px` }}>
 
-            {/* Wizard name header */}
+            {/* Header */}
             <div style={{
               display: "flex", alignItems: "center", gap: 6,
               marginBottom: 8, paddingLeft: 2,
@@ -249,8 +252,7 @@ function SlidePanel({
               </span>
               <span style={{
                 color: "rgba(255,255,255,0.45)",
-                fontSize: 11,
-                fontStyle: "italic",
+                fontSize: 11, fontStyle: "italic",
                 marginLeft: 2,
               }}>
                 — {wizard.label}
@@ -267,14 +269,14 @@ function SlidePanel({
                     onClick={() => onNavigate(page.id)}
                     style={{
                       width: "100%", textAlign: "left",
-                      padding: "11px 14px",
+                      padding: "10px 12px",
                       borderRadius: 8,
                       border: isActive ? `1px solid ${wizard.glow}55` : "1px solid transparent",
                       background: isActive
                         ? `linear-gradient(90deg, ${wizard.glow}28, ${wizard.glow}0f)`
                         : "transparent",
                       cursor: "pointer",
-                      display: "flex", alignItems: "center", gap: 8,
+                      display: "flex", alignItems: "center", gap: 10,
                       transition: "all 0.12s ease",
                       outline: "none",
                     }}
@@ -314,8 +316,29 @@ function SlidePanel({
             pointerEvents: "none",
           }} />
         </div>
-
       </div>
+
+      {/* ── AVATAR (right) — click to close ── */}
+      <button
+        onClick={onClose}
+        title={`Close ${wizard.name}`}
+        style={{
+          background: "none", border: "none", padding: 0,
+          cursor: "pointer", outline: "none", flexShrink: 0,
+        }}
+      >
+        <div style={{
+          width: PANEL_AVT_SIZE + 10,
+          height: PANEL_AVT_SIZE + 10,
+          borderRadius: "50%",
+          background: `radial-gradient(circle, ${wizard.glow}38 0%, transparent 70%)`,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          boxShadow: `0 0 28px ${wizard.glow}60, 0 4px 16px rgba(0,0,0,0.4)`,
+        }}>
+          <AvatarCircle wizard={wizard} size={PANEL_AVT_SIZE} glow />
+        </div>
+      </button>
+
     </div>
   );
 }
@@ -439,9 +462,12 @@ export default function WizardNav() {
                 title={`${w.name} — ${w.label}`}
                 style={{
                   background: "none", border: "none", padding: 0,
-                  cursor: "pointer", outline: "none",
-                  transform: isOpen ? "translateX(5px) scale(1.06)" : "translateX(0) scale(1)",
-                  transition: "transform 0.22s ease",
+                  cursor: isOpen ? "default" : "pointer",
+                  outline: "none",
+                  opacity: isOpen ? 0 : 1,
+                  pointerEvents: isOpen ? "none" : "auto",
+                  transform: "translateX(0) scale(1)",
+                  transition: "opacity 0.18s ease",
                 }}
               >
                 <AvatarCircle
@@ -479,6 +505,7 @@ export default function WizardNav() {
           isOpen={openWizard === w.id}
           topPx={wizardTops[w.id] ?? 200}
           onNavigate={handleNavigate}
+          onClose={() => setOpenWizard(null)}
         />
       ))}
 
