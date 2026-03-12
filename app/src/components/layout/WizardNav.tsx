@@ -60,6 +60,7 @@ const WIZARDS = [
     panelGradient: "linear-gradient(135deg, #2d1b6b18 0%, #7c3aed10 100%)",
     glow: "#8b5cf6",
     symbol: "⚡",
+    image: "/wizards/blaise.png",
     accent: "#8b5cf6",
     pages: [
       { id: "stats",  label: "Stats",          icon: "📊" },
@@ -81,12 +82,10 @@ function AvatarCircle({
   glow?: boolean;
   dimmed?: boolean;
 }) {
-  const hasImage = "image" in wizard && !!wizard.image;
-
   return (
     <div style={{
       width: size, height: size, borderRadius: "50%",
-      background: hasImage ? "transparent" : wizard.gradient,
+      background: "transparent",
       border: glow ? `2.5px solid ${wizard.glow}` : "2.5px solid transparent",
       display: "flex", alignItems: "center", justifyContent: "center",
       fontSize: size * 0.42,
@@ -99,32 +98,17 @@ function AvatarCircle({
       position: "relative" as const,
       overflow: "hidden",
     }}>
-      {hasImage ? (
-        /* Real wizard portrait */
-        <img
-          src={(wizard as typeof wizard & { image: string }).image}
-          alt={wizard.name}
-          style={{
-            width: "100%", height: "100%",
-            objectFit: "cover",
-            objectPosition: "center top",
-            borderRadius: "50%",
-            display: "block",
-          }}
-        />
-      ) : (
-        <>
-          {/* Shimmer for emoji placeholder */}
-          <div style={{
-            position: "absolute", inset: 0, borderRadius: "50%",
-            background: "linear-gradient(135deg, rgba(255,255,255,0.22) 0%, transparent 55%)",
-            pointerEvents: "none",
-          }} />
-          <span style={{ position: "relative", zIndex: 1, filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.6))" }}>
-            {wizard.symbol}
-          </span>
-        </>
-      )}
+      <img
+        src={wizard.image}
+        alt={wizard.name}
+        style={{
+          width: "100%", height: "100%",
+          objectFit: "cover",
+          objectPosition: "center top",
+          borderRadius: "50%",
+          display: "block",
+        }}
+      />
 
       {/* Glow ring overlay for both types */}
       {glow && (
