@@ -68,7 +68,6 @@ const WIZARDS = [
 
 const COL_WIDTH   = 88;   // wizard column width
 const AVATAR_SIZE = 66;   // avatar circle size
-const AVT_COL     = 86;   // avatar medallion size on panel right
 const TOP_OFFSET  = 60;   // px from top before first wizard
 
 // ─── Avatar circle — uses photo if available, emoji gradient otherwise ────────
@@ -142,16 +141,14 @@ const LINK_H    = 48;   // height per nav link row
 const HEADER_H  = 42;   // wizard name header height
 const PAD_V     = 18;   // top + bottom inner padding
 const LINKS_W   = 220;  // width of the nav links section
-const AVT_BUMP  = 14;   // how much avatar "bumps" out past the panel right edge
 
 function SlidePanel({
-  wizard, isOpen, topPx, onNavigate, onClose,
+  wizard, isOpen, topPx, onNavigate,
 }: {
   wizard: typeof WIZARDS[number];
   isOpen: boolean;
   topPx: number;
   onNavigate: (page: string) => void;
-  onClose: () => void;
 }) {
   const { currentPage } = useAppStore();
 
@@ -166,17 +163,14 @@ function SlidePanel({
   const rawTop       = topPx - panelH / 2;
   const finalTop     = Math.max(minTop, Math.min(maxTop, rawTop));
 
-  // Total panel width: links section + avatar section
-  const totalW = LINKS_W + AVT_COL;
-
   return (
     <div style={{
       position: "fixed",
       top: finalTop,
       left: COL_WIDTH,
-      width: totalW + AVT_BUMP,
+      width: LINKS_W,
       zIndex: 100,
-      transform: isOpen ? "translateX(0)" : `translateX(-${totalW + AVT_BUMP + 6}px)`,
+      transform: isOpen ? "translateX(0)" : `translateX(-${LINKS_W + 6}px)`,
       transition: "transform 0.22s cubic-bezier(0.4, 0, 0.2, 1), top 0.15s ease",
       pointerEvents: isOpen ? "auto" : "none",
     }}>
@@ -320,40 +314,6 @@ function SlidePanel({
           }} />
         </div>
 
-        {/* ── AVATAR MEDALLION — floats on the right, click to close panel ── */}
-        <button
-          onClick={onClose}
-          title={`Close ${wizard.name}`}
-          style={{
-            position: "absolute",
-            right: 0,
-            top: "50%",
-            transform: "translateY(-50%)",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 4,
-            background: "none",
-            border: "none",
-            padding: 0,
-            cursor: "pointer",
-            outline: "none",
-          }}
-        >
-          {/* Outer ring */}
-          <div style={{
-            width: AVT_COL + AVT_BUMP,
-            height: AVT_COL + AVT_BUMP,
-            borderRadius: "50%",
-            background: `radial-gradient(circle, ${wizard.glow}40 0%, transparent 70%)`,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            boxShadow: `0 0 24px ${wizard.glow}66`,
-            transition: "box-shadow 0.2s ease",
-          }}>
-            <AvatarCircle wizard={wizard} size={AVT_COL - 4} glow />
-          </div>
-        </button>
-
       </div>
     </div>
   );
@@ -436,9 +396,8 @@ export default function WizardNav() {
         flexDirection: "column",
         alignItems: "center",
         paddingTop: TOP_OFFSET,
-        gap: 18,
+        gap: 14,
         background: "transparent",
-        borderRight: `1px solid ${theme.bgCardBorder}30`,
         flexShrink: 0,
         position: "relative",
         zIndex: 110,
@@ -452,12 +411,20 @@ export default function WizardNav() {
             <div
               key={w.id}
               ref={el => { avatarRefs.current[w.id] = el; }}
-              style={{ position: "relative", display: "flex", alignItems: "center" }}
+              style={{
+                position: "relative",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 4,
+              }}
             >
-              {/* Active page indicator bar */}
+              {/* Active page indicator — left edge glow bar */}
               {isActive && (
                 <div style={{
-                  position: "absolute", left: -(COL_WIDTH / 2 - AVATAR_SIZE / 2 + 2),
+                  position: "absolute",
+                  left: -(COL_WIDTH / 2 - AVATAR_SIZE / 2 + 2),
+                  top: "50%", transform: "translateY(-50%)",
                   width: 3, height: AVATAR_SIZE * 0.65, borderRadius: "0 3px 3px 0",
                   background: w.glow,
                   boxShadow: `0 0 8px ${w.glow}`,
@@ -471,12 +438,9 @@ export default function WizardNav() {
                 title={`${w.name} — ${w.label}`}
                 style={{
                   background: "none", border: "none", padding: 0,
-                  cursor: isOpen ? "default" : "pointer",
-                  outline: "none",
-                  opacity: isOpen ? 0 : 1,
-                  pointerEvents: isOpen ? "none" : "auto",
-                  transform: "translateX(0)",
-                  transition: "opacity 0.2s ease",
+                  cursor: "pointer", outline: "none",
+                  transform: isOpen ? "translateX(5px) scale(1.06)" : "translateX(0) scale(1)",
+                  transition: "transform 0.22s ease",
                 }}
               >
                 <AvatarCircle
@@ -487,21 +451,20 @@ export default function WizardNav() {
                 />
               </button>
 
-              {/* Tooltip (only when no panel open) */}
-              {hov && !openWizard && (
-                <div style={{
-                  position: "absolute", left: COL_WIDTH + 6, top: "50%",
-                  transform: "translateY(-50%)", zIndex: 200,
-                  background: "rgba(0,0,0,0.88)", color: "#fff",
-                  borderRadius: 8, padding: "6px 12px", whiteSpace: "nowrap",
-                  fontSize: 13, fontWeight: 600, pointerEvents: "none",
-                  boxShadow: "0 4px 14px rgba(0,0,0,0.4)",
-                  border: `1px solid ${w.glow}44`,
-                }}>
-                  <div style={{ color: w.accent }}>{w.name}</div>
-                  <div style={{ color: "rgba(255,255,255,0.55)", fontSize: 10 }}>{w.label}</div>
-                </div>
-              )}
+              {/* Name label below avatar — always visible */}
+              <span style={{
+                color: isOpen || isActive ? w.accent : theme.textMuted,
+                fontSize: 9,
+                fontWeight: 700,
+                letterSpacing: "0.07em",
+                textTransform: "uppercase",
+                textAlign: "center",
+                userSelect: "none",
+                pointerEvents: "none",
+                transition: "color 0.2s ease",
+              }}>
+                {w.name}
+              </span>
             </div>
           );
         })}
@@ -515,7 +478,6 @@ export default function WizardNav() {
           isOpen={openWizard === w.id}
           topPx={wizardTops[w.id] ?? 200}
           onNavigate={handleNavigate}
-          onClose={() => setOpenWizard(null)}
         />
       ))}
 
